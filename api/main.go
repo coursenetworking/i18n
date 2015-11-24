@@ -27,6 +27,7 @@ type Translation struct {
 
 var dbhost = flag.String("dbhost", "", "Ex: localhost:27017")
 var dbname = flag.String("dbname", "", "Ex: cnv3")
+var host = flag.String("host", ":8080", "Ex: localhost:8080")
 
 func main() {
 	flag.Parse()
@@ -126,5 +127,5 @@ func main() {
 		})
 	})
 
-	r.Run(":8080")
+	r.Run(*host)
 }
