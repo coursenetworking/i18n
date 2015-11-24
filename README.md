@@ -2,17 +2,6 @@
 
 For collecting different languages translation
 
-#API structure
-
-	{
-	     "section": "header",
-	     "to_lang": "zh-CN",
-	     "items": {
-	         "post":   "文章",
-	         "search": "搜索",
-	     },
-	}
-
 #Database structure
 	{
 	    "section": "header",
@@ -27,6 +16,29 @@ For collecting different languages translation
 	        ...
 		 }
 	}
+
+# API list
+## [POST] /translation/:lang/:section
+	{
+	     "items": {
+	         "post":   "文章",
+	         "search": "搜索",
+	     },
+	}
+
+## [GET] /translation/:lang
+
+	[
+		{
+	     	"section": "header",
+	     	"to_lang": "zh-CN",
+	     	"items": {
+	         	"post":   "文章",
+	         	"search": "搜索",
+	     	},
+		}, 
+		...
+	]
 	
 # Run API
 You can build this API by running `build.sh` or just run the program from `bin` folder.
