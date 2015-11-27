@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="i18n">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TheCN i18n Setting Page</title>
+    <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="../css/kube.css">
+    <link rel="stylesheet" href="../css/custom.css">
+    <script src="../../bower_components/angular/angular.js"></script>
+    <script src="../js/main.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>i18n Setting</h1>
+            <select name="lang" id="lang-select">
+                <option value="cn">cn-ZH</option>
+            </select>
+        </header>
+        <div id="body">
+            <section class="panel panel-lang">
+                <div class="panel-heading">
+                    Section Name
+                    <span>X</span>
+                </div>
+                <div class="panel-body">
+                    <form action="#">
+                        <table class="table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="width-6">
+                                        Source
+                                    </th>
+                                    <th class="width-6">
+                                        中文
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td ng-controller="sectionCtrl">
+                                        <label for="section_cn_search">{{data.message}}</label>
+                                    </td>
+                                    <td>
+                                        <input id="section_cn_search" type="text" value="搜索" title="search">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="section_cn_post">Post</label>
+                                    </td>
+                                    <td>
+                                        <input id="section_cn_post" type="text" value="微博" title="post">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="panel-footer text-right">
+                    <button type="primary">SAVE</button>
+                    <button>RESET</button>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="../../bower_components/jquery/dist/jquery.min.js"></script>
+</body>
+
+</html>

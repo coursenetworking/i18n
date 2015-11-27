@@ -1,0 +1,52 @@
+body {
+    width: 100%;
+    color: #bfc8cc;
+    background-color: #edf1f2;
+}
+
+table th,
+table td {
+    padding: 5px;
+}
+
+.container {
+    width: 80%;
+    margin: 20px auto;
+}
+
+.panel {
+    margin: 20px auto;
+    border-radius: 4px;
+    background: #fff;
+    color: #687a84;
+}
+
+.panel-heading,
+.panel-body,
+.panel-footer {
+    padding: 15px;
+}
+
+.panel-heading {
+    color: #fff;
+    background-color: #3bc0c3;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.panel-body {
+    color: #000;
+}
+
+.panel-lang .panel-body label {
+    height: 30px;
+    line-height: 1;
+    display: inline-block;
+    padding: 0.7rem 0;
+}
+
+.panel-lang .panel-body input,
+.panel-lang .panel-footer button {
+    height: 30px;
+    line-height: 30px;
+}

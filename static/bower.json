@@ -1,0 +1,21 @@
+{
+  "name": "CN i18n",
+  "version": "0.0.1",
+  "homepage": "https://github.com/coursenetworking/i18n",
+  "authors": [
+    "King Chung <kingchung@outlook.com>"
+  ],
+  "description": "A page for admin set multiple languages",
+  "main": "src/index.html",
+  "keywords": [
+    "i18n"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
