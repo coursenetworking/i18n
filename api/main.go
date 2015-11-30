@@ -49,7 +49,7 @@ func main() {
 		ctx.Header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
 		ctx.Header("Content-Type", "application/json")
 		ctx.Header("Access-Control-Allow-Credentials", "true")
-		ctx.Header("Access-Control-Allow-Methods", "*")
+		ctx.Header("Access-Control-Allow-Origin", "*")
 	})
 
 	r.GET("/translation/:lang", func(ctx *gin.Context) {
