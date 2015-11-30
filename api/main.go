@@ -45,6 +45,13 @@ func main() {
 	db := session.DB(*dbname)
 
 	r := gin.Default()
+	r.Use(func(ctx *gin.Context) {
+		ctx.Header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
+		ctx.Header("Content-Type", "application/json")
+		ctx.Header("Access-Control-Allow-Credentials", "true")
+		ctx.Header("Access-Control-Allow-Methods", "*")
+	})
+
 	r.GET("/translation/:lang", func(ctx *gin.Context) {
 		iter := db.C("i18n").Find(bson.M{}).Iter()
 		trans := new(Translation)
