@@ -20,58 +20,13 @@
     <div class="container" ng-controller="langCtrl">
         <header>
             <h1>i18n Setting</h1>
-            <!-- <langselect></langselect> -->
-            <select name="lang" id="lang-select" ng-click="fetch()">
-                <option value="cn">cn-ZH</option>
-                <option value="en">English</option>
-            </select>
+            <langselect lang="lang" change-lang="fetch()">
+                <option ng-repeat="(k, v) in langs" value="{{k}}" ng-selected="{{v == lang}}">{{v}}</option>
+            </langselect>
+            <span ng-bind="lang"></span>
         </header>
-        <div id="body" ng-repeat="section in sections">
-            <section class="panel panel-lang" ng-controller="sectionCtrl">
-                <div class="panel-heading">
-                    <span ng-bind="section.name"></span>
-                    <a href="javascript:;" ng-click="panelToggle()">+</a>
-                </div>
-                <div class="panel-body" ng-show="panel.isShow">
-                    <form action="#">
-                        <table class="table-responsive">
-                            <thead>
-                                <tr>
-                                    <th class="width-6">
-                                        Source
-                                    </th>
-                                    <th class="width-6">
-                                        中文
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td >
-                                        <label for="section_cn_search">Search</label>
-                                    </td>
-                                    <td>
-                                        <input id="section_cn_search" type="text" title="search" ng-model="section.langs.search">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label for="section_cn_post">Post</label>
-                                    </td>
-                                    <td>
-                                        <input id="section_cn_post" type="text" title="post" ng-model="section.langs.post">
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <input type="hidden" name="to_lang" ng-model="section.to_lang">
-                    </form>
-                </div>
-                <div class="panel-footer text-right" ng-show="panel.isShow">
-                    <button type="primary" ng-click="getFormData()">SAVE</button>
-                    <button ng-click="resetFromData()">RESET</button>
-                </div>
-            </section>
+        <div id="body">
+            <div langsection></div>
         </div>
     </div>
     <script src="../bower_components/jquery/dist/jquery.min.js"></script>
