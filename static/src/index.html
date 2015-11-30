@@ -17,20 +17,22 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="container" ng-controller="langCtrl">
         <header>
             <h1>i18n Setting</h1>
-            <select name="lang" id="lang-select">
+            <!-- <langselect></langselect> -->
+            <select name="lang" id="lang-select" ng-click="fetch()">
                 <option value="cn">cn-ZH</option>
+                <option value="en">English</option>
             </select>
         </header>
-        <div id="body">
-            <section class="panel panel-lang">
+        <div id="body" ng-repeat="section in sections">
+            <section class="panel panel-lang" ng-controller="sectionCtrl">
                 <div class="panel-heading">
-                    Section Name
-                    <span>X</span>
+                    <span ng-bind="section.name"></span>
+                    <a href="javascript:;" ng-click="panelToggle()">+</a>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body" ng-show="panel.isShow">
                     <form action="#">
                         <table class="table-responsive">
                             <thead>
@@ -45,11 +47,11 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td ng-controller="sectionCtrl">
-                                        <label for="section_cn_search">{{data.message}}</label>
+                                    <td >
+                                        <label for="section_cn_search">Search</label>
                                     </td>
                                     <td>
-                                        <input id="section_cn_search" type="text" value="搜索" title="search">
+                                        <input id="section_cn_search" type="text" title="search" ng-model="section.langs.search">
                                     </td>
                                 </tr>
                                 <tr>
@@ -57,16 +59,17 @@
                                         <label for="section_cn_post">Post</label>
                                     </td>
                                     <td>
-                                        <input id="section_cn_post" type="text" value="微博" title="post">
+                                        <input id="section_cn_post" type="text" title="post" ng-model="section.langs.post">
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
+                        <input type="hidden" name="to_lang" ng-model="section.to_lang">
                     </form>
                 </div>
-                <div class="panel-footer text-right">
-                    <button type="primary">SAVE</button>
-                    <button>RESET</button>
+                <div class="panel-footer text-right" ng-show="panel.isShow">
+                    <button type="primary" ng-click="getFormData()">SAVE</button>
+                    <button ng-click="resetFromData()">RESET</button>
                 </div>
             </section>
         </div>
