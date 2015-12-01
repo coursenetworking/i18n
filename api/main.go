@@ -46,8 +46,9 @@ func main() {
 
 	r := gin.Default()
 	r.Use(func(ctx *gin.Context) {
-		ctx.Header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
 		ctx.Header("Content-Type", "application/json")
+		ctx.Header("Access-Control-Allow-Headers", "Content-Type")
+		ctx.Header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
 		ctx.Header("Access-Control-Allow-Credentials", "true")
 		ctx.Header("Access-Control-Allow-Origin", "*")
 	})
