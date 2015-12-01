@@ -2,7 +2,7 @@
     <form ng-submit="saveSection()" ng-controller="sectionCtrl">
         <div class="panel-heading">
             <span>{{section.section}}</span>
-            <span>{{section.items['post']}}</span>
+            <a href="javascript:;">+</a>
         </div>
         <div class="panel-body">
             <table class="table-responsive">
@@ -17,12 +17,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="(source, tolang) in section.items">
+                    <tr ng-repeat="item in section.items">
                         <td>
-                            <label for="section_cn_{{source}}">{{source}}</label>
+                            <label for="section_cn_{{item.source}}">{{item.source}}</label>
                         </td>
                         <td>
-                            <input id="section_cn_{{source}}" type="text" title="{{source}}" ng-model="$parent.tolang">
+                            <input id="section_cn_{{item.source}}" type="text" title="{{item.source}}" ng-model="item.tolang">
                         </td>
                     </tr>
                 </tbody>

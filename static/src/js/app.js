@@ -111,7 +111,11 @@ i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $ht
                 if(res.result) {
                     var sections = {}, s = null;
                     for (var k in res.data) {
-                        var s = res.data[k];
+                        var s = res.data[k], items = [];
+                        for(var i in s.items) {
+                            items.push({source: i, tolang: s.items[i]});
+                        }
+                        s.items = items;
                         sections[s.section] = s;
                     }
                     $scope.sections = sections;
@@ -148,12 +152,21 @@ i18n.directive("langsection", function(){
 
 i18n.controller("sectionCtrl", ["$scope", "$http", function($scope, $http){
         $scope.saveSection = function(){
-            console.log($scope.section);
+            var items = {}, item = null;
+            for (var i in $scope.section.items) {
+                if ($scope.section.items.hasOwnProperty(i)) {
+                    item = $scope.section.items[i];
+                    items[item.source] = item.tolang;
+                }
+            }
+            $http({
+                method: "POST",
+                url: 'http://localhost:8080/translation/' + $scope.lang + '/' + $scope.section.section,
+                data: {items: items}
+            }).then(function(){
+                alert('SAVE SUCCESSFULLY.');
+            });
             return false;
-            // $http({
-            //     method: "POST",
-            //     url: 'http://localhost:8080/translation/' + $scope.lang
-            // })
-        }
+        };
     }]
 );

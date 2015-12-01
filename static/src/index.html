@@ -23,13 +23,11 @@
             <langselect lang="lang" change-lang="fetch()">
                 <option ng-repeat="(k, v) in langs" value="{{k}}" ng-selected="{{v == lang}}">{{v}}</option>
             </langselect>
-            <span ng-bind="lang"></span>
         </header>
         <div id="body">
             <div langsection></div>
         </div>
     </div>
-    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
 </body>
 
 </html>
