@@ -134,5 +134,9 @@ func main() {
 		})
 	})
 
+	r.OPTIONS("*path", func(ctx *gin.Context) {
+		//nothing
+	})
+
 	r.Run(*host)
 }
