@@ -31,6 +31,20 @@ i18n.directive("supermode", function(){
     }
 });
 
+// i18n.filter("fSectionName", function(){
+//     return function(input){
+//         var outputs = {};
+//         for (var section in $scope.sections) {
+//             if (object.hasOwnProperty(section)) {
+//                 if(input == section) {
+//                     outputs[section] = $scope.sctions[section];
+//                 }
+//             }
+//         }
+//         return outputs;
+//     }
+// });
+
 i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $http, $timeout){
     $scope.langs = {
         "af_ZA": "Afrikaans",
@@ -140,16 +154,15 @@ i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $ht
             }).then(function(res){
                 res = res.data || {};
                 if(res.result) {
+                    $scope.sections = res.data;
                     var sections = {}, s = null;
-                    for (var k in res.data) {
-                        var s = res.data[k], items = [];
+                    for (var k in $scope.sections) {
+                        var s = $scope.sections[k], items = [];
                         for(var i in s.items) {
                             items.push({source: i, tolang: s.items[i]});
                         }
                         s.items = items;
-                        sections[s.section] = s;
                     }
-                    $scope.sections = sections;
                 }
             }, function(){
 
@@ -157,6 +170,14 @@ i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $ht
         }, 0);
     };
     $scope.fetch();
+
+    $scope.addSection = function() {
+        $scope.sections.unshift({
+            items: [],
+            section: +new Date(),
+            to_lang: $scope.lang
+        });
+    }
 }]);
 
 i18n.directive("langselect", function(){
@@ -200,7 +221,7 @@ i18n.directive("langsectioncreate", function(){
 i18n.directive("langsectionlist", function(){
     return {
         restrict: "AE",
-        template: "<section class=\"panel panel-lang\" ng-repeat=\"section in sections\"><div langsectionform></div></section>",
+        template: "<section class=\"panel panel-lang\" ng-repeat=\"(k, section) in sections|filter:searchSection as results\"><div langsectionform></div></section>",
         replace: true
     }
 });

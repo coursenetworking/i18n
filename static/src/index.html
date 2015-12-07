@@ -18,14 +18,15 @@
     <body>
         <supermode>
             <div class="container" ng-controller="langCtrl">
-                <header>
+                <header id="header">
                     <h1>i18n Setting</h1>
                     <langselect lang="lang" change-lang="fetch()">
                         <option ng-repeat="(k, v) in langs" value="{{k}}" ng-selected="{{v == lang}}">{{v}}</option>
                     </langselect>
                 </header>
                 <div id="body">
-                    <div class="super-mode-node" langsectioncreate></div>
+                    <input type="search" ng-model="searchSection">{{searchSection}}
+                    <a href="javascript:;" class="super-mode-show" ng-click="addSection()">+ Section</a>
                     <div langsectionlist></div>
                 </div>
             </div>
