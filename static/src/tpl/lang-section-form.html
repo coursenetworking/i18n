@@ -1,0 +1,50 @@
+<form ng-submit="saveSection()" ng-controller="sectionCtrl">
+    <div class="panel-heading super-mode-show">
+        <label for="section_name">Section Name:</label>
+        <input id="section_name" type="text" ng-model="section.section">
+    </div>
+    <div class="panel-heading super-mode-hide">
+        <span>{{section.section}}</span>
+    </div>
+    <div class="panel-body">
+        <table class="table-responsive">
+            <thead>
+                <tr>
+                    <th class="width-6">
+                        Source
+                    </th>
+                    <th class="width-6">
+                        {{langs[lang]}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in section.items">
+                    <td>
+                        <div class="super-mode-show">
+                            <input type="text" ng-model="item.source">
+                        </div>
+                        <div class="super-mode-hide">
+                            <label>{{item.source}}</label>
+                        </div>
+                    </td>
+                    <td>
+                        <input type="text" title="{{item.source}}" ng-model="item.tolang">
+                        <a class="super-mode-show-inline" href="javascript:;" ng-click="deleteLang($index)">-delete</a>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot class="super-mode-show">
+                <tr>
+                    <td colspan="2">
+                        <a href="javascript:;" ng-click="addLang()">+add</a>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="panel-footer text-right">
+        <button type="primary">SAVE</button>
+        <button ng-click="resetFromData()">RESET</button>
+    </div>
+</form>

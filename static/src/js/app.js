@@ -1,4 +1,35 @@
 var i18n = angular.module("i18n", []);
+i18n.directive("supermode", function(){
+    return {
+        restrict: "AE",
+        replace: true,
+        transclude: true,
+        template: "<div class='super-mode' ng-class=\"{'active': supermode}\" ng-transclude></div>",
+        controller: function($scope){
+            $scope.supermode = false;
+        },
+        link: function(scope, elem, attrs){
+            var keyMemos = [], timer = null;
+            angular.element(window).bind("keydown", function(e){
+                keyMemos.push(e.keyCode);
+                if(keyMemos.length == 6) {
+                    scope.$apply(function() {
+                        angular.equals(keyMemos, [49,50,51,49,50,51]) && (scope.supermode = !scope.supermode);
+                    });
+                    keyMemos = [];
+                }
+                if(!timer) {
+                    timer = setTimeout(function(){
+                        keyMemos = [];
+                        timer = null;
+                    }, 1.5e3);
+                }
+                return true;
+            });
+            return true;
+        }
+    }
+});
 
 i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $http, $timeout){
     $scope.langs = {
@@ -142,16 +173,40 @@ i18n.directive("langselect", function(){
     }
 });
 
-i18n.directive("langsection", function(){
+i18n.directive("langsectionform", function(){
     return {
         restrict: "AE",
-        templateUrl: "tpl/lang-section.html",
+        templateUrl: "tpl/lang-section-form.html",
+        replace: true
+    }
+});
+
+i18n.directive("langsectioncreate", function(){
+    return {
+        restrict: "AE",
+        template: "<section class=\"panel panel-lang super-mode-show\"><div langsectionform></div></section>",
+        replace: true,
+        controller: function($scope) {
+            $scope.section = {
+                to_lang: $scope.lang,
+                items: [
+                    {source: "", tolang: ""}
+                ]
+            }
+        }
+    }
+});
+
+i18n.directive("langsectionlist", function(){
+    return {
+        restrict: "AE",
+        template: "<section class=\"panel panel-lang\" ng-repeat=\"section in sections\"><div langsectionform></div></section>",
         replace: true
     }
 });
 
 i18n.controller("sectionCtrl", ["$scope", "$http", function($scope, $http){
-        $scope.saveSection = function(){
+        $scope.saveSection = function() {
             var items = {}, item = null;
             for (var i in $scope.section.items) {
                 if ($scope.section.items.hasOwnProperty(i)) {
@@ -168,5 +223,16 @@ i18n.controller("sectionCtrl", ["$scope", "$http", function($scope, $http){
             });
             return false;
         };
+
+        $scope.addLang = function() {
+            $scope.section.items.push({
+                source: "",
+                tolang: ""
+            });
+        }
+
+        $scope.deleteLang = function(index) {
+            $scope.section.items.splice(index, 1);
+        }
     }]
 );

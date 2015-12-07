@@ -1,33 +1,34 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="i18n">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>TheCN i18n Setting Page</title>
+        <!--[if lt IE 9]>
+          <script src="https://cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <link rel="stylesheet" href="css/kube.css">
+        <link rel="stylesheet" href="css/custom.css">
+        <script src="../bower_components/angular/angular.js"></script>
+        <script src="js/app.js"></script>
+    </head>
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TheCN i18n Setting Page</title>
-    <!--[if lt IE 9]>
-      <script src="https://cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-    <link rel="stylesheet" href="css/kube.css">
-    <link rel="stylesheet" href="css/custom.css">
-    <script src="../bower_components/angular/angular.js"></script>
-    <script src="js/app.js"></script>
-</head>
-
-<body>
-    <div class="container" ng-controller="langCtrl">
-        <header>
-            <h1>i18n Setting</h1>
-            <langselect lang="lang" change-lang="fetch()">
-                <option ng-repeat="(k, v) in langs" value="{{k}}" ng-selected="{{v == lang}}">{{v}}</option>
-            </langselect>
-        </header>
-        <div id="body">
-            <div langsection></div>
-        </div>
-    </div>
-</body>
-
+    <body>
+        <supermode>
+            <div class="container" ng-controller="langCtrl">
+                <header>
+                    <h1>i18n Setting</h1>
+                    <langselect lang="lang" change-lang="fetch()">
+                        <option ng-repeat="(k, v) in langs" value="{{k}}" ng-selected="{{v == lang}}">{{v}}</option>
+                    </langselect>
+                </header>
+                <div id="body">
+                    <div class="super-mode-node" langsectioncreate></div>
+                    <div langsectionlist></div>
+                </div>
+            </div>
+        </supermode>
+    </body>
 </html>

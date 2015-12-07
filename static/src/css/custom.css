@@ -50,3 +50,18 @@ table td {
     height: 30px;
     line-height: 30px;
 }
+
+/* Super Mode */
+.super-mode .super-mode-show,
+.super-mode .super-mode-show-inline,
+.super-mode.active .super-mode-hide {
+    display: none;
+}
+
+.super-mode.active .super-mode-show {
+    display: block;
+}
+
+.super-mode.active .super-mode-show-inline {
+    display: inline-block;
+}
