@@ -25,6 +25,11 @@ type Translation struct {
 	Items   TranslationItem `bson:"items"`
 }
 
+// Create new English item
+type Items struct {
+	Items []string `json:"items" bson:"items"`
+}
+
 var dbhost = flag.String("dbhost", "", "Ex: localhost:27017")
 var dbname = flag.String("dbname", "", "Ex: cnv3")
 var host = flag.String("host", ":8080", "Ex: localhost:8080")
@@ -92,7 +97,7 @@ func main() {
 		err = ctx.BindJSON(sec)
 
 		if err != nil {
-			ctx.JSON(500, gin.H{
+			ctx.JSON(400, gin.H{
 				"result": false,
 				"err":    err.Error(),
 			})
@@ -122,7 +127,67 @@ func main() {
 
 		info, err := db.C("i18n").Upsert(bson.M{"section": section}, trans)
 		if info.Updated == 0 || err != nil {
-			ctx.JSON(500, gin.H{
+			ctx.JSON(400, gin.H{
+				"result": false,
+				"err":    err.Error(),
+			})
+
+			return
+		}
+
+		ctx.JSON(200, gin.H{
+			"result": true,
+		})
+	})
+
+	r.POST("/source/:section", func(ctx *gin.Context) {
+		section := ctx.Param("section")
+		n, err := db.C("i18n").Find(bson.M{"section": section}).Count()
+		if n == 1 {
+			ctx.JSON(400, gin.H{
+				"result": false,
+				"err":    "section exists already",
+			})
+			return
+		} else if err != nil {
+			ctx.JSON(400, gin.H{
+				"result": false,
+				"err":    err.Error(),
+			})
+			return
+		}
+
+		sec := new(Items)
+		err = ctx.BindJSON(sec)
+
+		if err != nil {
+			ctx.JSON(400, gin.H{
+				"result": false,
+				"err":    err.Error(),
+			})
+
+			return
+		}
+
+		if 0 == len(sec.Items) {
+			ctx.JSON(400, gin.H{
+				"result": false,
+				"err":    "items can't be empty",
+			})
+
+			return
+		}
+
+		trans := new(Translation)
+		trans.Items = TranslationItem{}
+		trans.Section = section
+		for _, v := range sec.Items {
+			trans.Items[v] = make(map[string]string)
+		}
+
+		err = db.C("i18n").Insert(trans)
+		if err != nil {
+			ctx.JSON(400, gin.H{
 				"result": false,
 				"err":    err.Error(),
 			})

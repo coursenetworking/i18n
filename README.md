@@ -18,7 +18,10 @@ For collecting different languages translation
 	}
 
 # API list
+
 ## [POST] /translation/:lang/:section
+Translate the `section` to another language(`:lang`)
+
 	{
 	     "items": {
 	         "post":   "文章",
@@ -27,6 +30,7 @@ For collecting different languages translation
 	}
 
 ## [GET] /translation/:lang
+Get the translation of given langauge(`:lang`)
 
 	[
 		{
@@ -39,7 +43,16 @@ For collecting different languages translation
 		}, 
 		...
 	]
-	
+
+## [POST] /source/:section
+Create new section data in source langauge (default in English)
+
+	{
+	     "items": [
+	         "post",
+	         "search",
+	     ],
+	}
 # Run API
 You can build this API by running `build.sh` or just run the program from `bin` folder.
 
