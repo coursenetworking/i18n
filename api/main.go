@@ -70,12 +70,20 @@ func main() {
 		for iter.Next(trans) {
 			items := make(SectionItems)
 			for original, ts := range trans.Items {
+				find := false
 				for langName, translatedTo := range ts {
 					if langName == lang {
+						find = true
 						items[original] = SectionItem{
 							TranslateTo: translatedTo,
 						}
 						break
+					}
+				}
+
+				if !find {
+					items[original] = SectionItem{
+						TranslateTo: "",
 					}
 				}
 			}
