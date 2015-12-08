@@ -144,9 +144,8 @@ func main() {
 			newOriginalItem := true
 			for o2, _ := range trans.Items {
 				if o == o2 {
-
 					// rename its key
-					if it.RenameTo != "" {
+					if it.RenameTo != "" && it.RenameTo != o {
 						trans.Items[it.RenameTo] = trans.Items[o]
 						delete(trans.Items, o)
 						trans.Items[it.RenameTo][toLang] = it.TranslateTo
