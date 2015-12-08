@@ -23,10 +23,18 @@ For collecting different languages translation
 Translate the `section` to another language(`:lang`)
 
 	{
+	     "section": "header", // API will ignore this value, because the section name is in the URL already
+	     "rename_to": "", // default empty to keep this section name, if set, will rename the section name to this new value.
 	     "items": {
-	         "post":   "文章",
-	         "search": "搜索",
-	     },
+	         "post": {
+	             "rename_to": "", //default empty to keep this key "post"
+	             "translate_to": "文章"
+	         },
+	         "search": {
+	             "rename_to": "Search", // will rename "search" to "Search"
+	             "translate_to": "搜索"
+	         }
+	     }
 	}
 
 ## [GET] /translation/:lang
@@ -34,25 +42,22 @@ Get the translation of given langauge(`:lang`)
 
 	[
 		{
-	     	"section": "header",
-	     	"to_lang": "zh-CN",
-	     	"items": {
-	         	"post":   "文章",
-	         	"search": "搜索",
-	     	},
-		}, 
+		     "section": "header", // the name of this section
+		     "rename_to": "", // can ignore here
+		     "items": {
+                "post": {
+                    "rename_to": "", // can ignore here
+                    "translate_to": "文章"
+                },
+                "search": {
+                    "rename_to": "",
+                    "translate_to": "搜索"
+                }
+            }
+       },
 		...
 	]
 
-## [POST] /source/:section
-Create new section data in source langauge (default in English)
-
-	{
-	     "items": [
-	         "post",
-	         "search",
-	     ],
-	}
 # Run API
 You can build this API by running `build.sh` or just run the program from `bin` folder.
 

@@ -11,23 +11,25 @@ import (
 )
 
 // for API json
-type SectionTranslation struct {
-	Section string            `json:"section"`
-	ToLang  string            `json:"to_lang"`
-	Items   map[string]string `json:"items"`
+type Section struct {
+	RenameTo string       `json:"rename_to"`
+	Section  string       `json:"section"`
+	Items    SectionItems `json:"items"`
+}
+
+type SectionItems map[string]SectionItem
+
+type SectionItem struct {
+	RenameTo    string `json:"rename_to"`
+	TranslateTo string `json:"translate_to"`
 }
 
 // for database
-type TranslationItem map[string]map[string]string
-
+type TranslationItems map[string]TranslationItem
+type TranslationItem map[string]string
 type Translation struct {
-	Section string          `bson:"section"`
-	Items   TranslationItem `bson:"items"`
-}
-
-// Create new English item
-type Items struct {
-	Items []string `json:"items" bson:"items"`
+	Section string           `bson:"section"`
+	Items   TranslationItems `bson:"items"`
 }
 
 var dbhost = flag.String("dbhost", "", "Ex: localhost:27017")
@@ -39,6 +41,7 @@ func main() {
 
 	if *dbhost == "" || *dbname == "" {
 		fmt.Println(errors.New("Err: dbhost or dbname can't be blank"))
+		flag.Usage()
 		return
 	}
 
@@ -60,25 +63,25 @@ func main() {
 
 	r.GET("/translation/:lang", func(ctx *gin.Context) {
 		iter := db.C("i18n").Find(bson.M{}).Iter()
-		trans := new(Translation)
 		lang := ctx.Param("lang")
 
-		secArr := make([]SectionTranslation, 0, 10)
+		secArr := make([]Section, 0, 10)
+		trans := new(Translation)
 		for iter.Next(trans) {
-			items := make(map[string]string)
+			items := make(SectionItems)
 			for original, ts := range trans.Items {
-				items[original] = ""
-				for langName, translatedLang := range ts {
+				for langName, translatedTo := range ts {
 					if langName == lang {
-						items[original] = translatedLang
+						items[original] = SectionItem{
+							TranslateTo: translatedTo,
+						}
 						break
 					}
 				}
 			}
 
-			secArr = append(secArr, SectionTranslation{
+			secArr = append(secArr, Section{
 				Section: trans.Section,
-				ToLang:  lang,
 				Items:   items,
 			})
 		}
@@ -93,7 +96,7 @@ func main() {
 		var err error
 		section := ctx.Param("section")
 		toLang := ctx.Param("to_lang")
-		sec := new(SectionTranslation)
+		sec := new(Section)
 		err = ctx.BindJSON(sec)
 
 		if err != nil {
@@ -116,77 +119,49 @@ func main() {
 			return
 		}
 
-		for original, _ := range trans.Items {
-			for original2, translated := range sec.Items {
-				if original == original2 {
-					trans.Items[original][toLang] = translated
+		// new section name
+		if sec.RenameTo != "" {
+			trans.Section = sec.RenameTo
+		}
+
+		//check any removed item
+		for o, _ := range trans.Items {
+			if _, ok := sec.Items[o]; !ok {
+				delete(trans.Items, o)
+			}
+		}
+
+		// check any new item or translated language
+		for o, it := range sec.Items {
+			newOriginalItem := true
+			for o2, _ := range trans.Items {
+				if o == o2 {
+
+					// rename its key
+					if it.RenameTo != "" {
+						trans.Items[it.RenameTo] = trans.Items[o]
+						delete(trans.Items, o)
+						trans.Items[it.RenameTo][toLang] = it.TranslateTo
+					} else {
+						trans.Items[o][toLang] = it.TranslateTo
+					}
+
+					newOriginalItem = false
 					break
 				}
+			}
+
+			if newOriginalItem {
+				if _, ok := trans.Items[o]; !ok {
+					trans.Items[o] = make(TranslationItem)
+				}
+
+				trans.Items[o][toLang] = it.TranslateTo
 			}
 		}
 
 		info, err := db.C("i18n").Upsert(bson.M{"section": section}, trans)
 		if info.Updated == 0 || err != nil {
-			ctx.JSON(400, gin.H{
-				"result": false,
-				"err":    err.Error(),
-			})
-
-			return
-		}
-
-		ctx.JSON(200, gin.H{
-			"result": true,
-		})
-	})
-
-	r.POST("/source/:section", func(ctx *gin.Context) {
-		section := ctx.Param("section")
-		n, err := db.C("i18n").Find(bson.M{"section": section}).Count()
-		if n == 1 {
-			ctx.JSON(400, gin.H{
-				"result": false,
-				"err":    "section exists already",
-			})
-			return
-		} else if err != nil {
-			ctx.JSON(400, gin.H{
-				"result": false,
-				"err":    err.Error(),
-			})
-			return
-		}
-
-		sec := new(Items)
-		err = ctx.BindJSON(sec)
-
-		if err != nil {
-			ctx.JSON(400, gin.H{
-				"result": false,
-				"err":    err.Error(),
-			})
-
-			return
-		}
-
-		if 0 == len(sec.Items) {
-			ctx.JSON(400, gin.H{
-				"result": false,
-				"err":    "items can't be empty",
-			})
-
-			return
-		}
-
-		trans := new(Translation)
-		trans.Items = TranslationItem{}
-		trans.Section = section
-		for _, v := range sec.Items {
-			trans.Items[v] = make(map[string]string)
-		}
-
-		err = db.C("i18n").Insert(trans)
-		if err != nil {
 			ctx.JSON(400, gin.H{
 				"result": false,
 				"err":    err.Error(),
