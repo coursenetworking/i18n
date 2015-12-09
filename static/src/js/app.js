@@ -159,7 +159,7 @@ i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $ht
     $scope.addSection = function() {
         $scope.sections.unshift({
             items: {},
-            rename_to: +new Date(),
+            rename_to: 'section'+(+new Date()),
             to_lang: $scope.lang
         });
     }
