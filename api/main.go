@@ -1,13 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/gin-gonic/gin"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // for API json
@@ -18,7 +18,6 @@ type Section struct {
 }
 
 type SectionItems map[string]SectionItem
-
 type SectionItem struct {
 	RenameTo    string `json:"rename_to"`
 	TranslateTo string `json:"translate_to"`
@@ -28,13 +27,43 @@ type SectionItem struct {
 type TranslationItems map[string]TranslationItem
 type TranslationItem map[string]string
 type Translation struct {
-	Section string           `bson:"section"`
-	Items   TranslationItems `bson:"items"`
+	Section string           `json:"section"`
+	Items   TranslationItems `json:"items"`
 }
 
-var dbhost = flag.String("dbhost", "", "Ex: localhost:27017")
-var dbname = flag.String("dbname", "", "Ex: cnv3")
-var host = flag.String("host", ":8080", "Ex: localhost:8080")
+// the db Object, it reflect to the dbfile
+type dbfileHandler []Translation
+
+func (d *dbfileHandler) Section(name string, trans *Translation) error {
+	for _, i := range *d {
+		if i.Section == name {
+			*trans = i
+			return nil
+		}
+	}
+
+	return errors.New("section does not exist")
+}
+
+func (d *dbfileHandler) Append(trans Translation) error {
+	if trans.Section == "" {
+		return errors.New("section can't be blank")
+	}
+
+	*d = append(*d, trans)
+	return nil
+}
+
+func (d *dbfileHandler) Update(name string, trans Translation) error {
+	for k, i := range *d {
+		if i.Section == name {
+			(*d)[k] = trans
+			return nil
+		}
+	}
+
+	return errors.New("section does not exist")
+}
 
 func newTranslation() *Translation {
 	trans := new(Translation)
@@ -42,21 +71,36 @@ func newTranslation() *Translation {
 	return trans
 }
 
+var host = flag.String("host", ":8080", "Ex: localhost:8080")
+var dbfile = flag.String("dbfile", "tmp/db.json", "the file to store translation data")
+
 func main() {
 	flag.Parse()
 
-	if *dbhost == "" || *dbname == "" {
-		fmt.Println(errors.New("Err: dbhost or dbname can't be blank"))
+	if *dbfile == "" {
+		fmt.Println(errors.New("Err: dbfile can't be blank"))
 		flag.Usage()
 		return
 	}
 
-	session, err := mgo.Dial(*dbhost)
+	dbf, err := os.OpenFile(*dbfile, os.O_RDWR|os.O_CREATE, 0700)
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
-	defer session.Close()
-	db := session.DB(*dbname)
+	defer dbf.Close()
+
+	dbTranslations := new(dbfileHandler)
+	finfo, err := dbf.Stat()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if finfo.Size() != 0 {
+		err = json.NewDecoder(dbf).Decode(dbTranslations)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
 
 	r := gin.Default()
 	r.Use(func(ctx *gin.Context) {
@@ -67,13 +111,18 @@ func main() {
 		ctx.Header("Access-Control-Allow-Origin", "*")
 	})
 
+	// Dump data data output
+	r.GET("/translation", func(ctx *gin.Context) {
+		ctx.JSON(200, dbTranslations)
+	})
+
+	// Retrun th given language translation
 	r.GET("/translation/:lang", func(ctx *gin.Context) {
-		iter := db.C("i18n").Find(bson.M{}).Iter()
 		lang := ctx.Param("lang")
 
 		secArr := make([]Section, 0, 10)
-		trans := newTranslation()
-		for iter.Next(trans) {
+
+		for _, trans := range *dbTranslations {
 			items := make(SectionItems)
 			for original, ts := range trans.Items {
 				find := false
@@ -106,6 +155,7 @@ func main() {
 		})
 	})
 
+	// Create/Update section translation in given language
 	r.POST("/translation/:to_lang/:section", func(ctx *gin.Context) {
 		var err error
 		section := ctx.Param("section")
@@ -123,10 +173,10 @@ func main() {
 		}
 
 		trans := newTranslation()
-		err = db.C("i18n").Find(bson.M{"section": section}).One(trans)
+		err = dbTranslations.Section(section, trans)
 		isNewSection := err != nil
 
-		// new section name
+		//new section name
 		if sec.RenameTo != "" {
 			trans.Section = sec.RenameTo
 		}
@@ -138,12 +188,12 @@ func main() {
 			}
 		}
 
-		// check any new item or translated language
+		//check any new item or translated language
 		for o, it := range sec.Items {
 			newOriginalItem := true
 			for o2, _ := range trans.Items {
 				if o == o2 {
-					// rename its key
+					//rename its key
 					if it.RenameTo != "" && it.RenameTo != o {
 						trans.Items[it.RenameTo] = trans.Items[o]
 						delete(trans.Items, o)
@@ -168,28 +218,29 @@ func main() {
 
 		if isNewSection {
 			trans.Section = section
-			err = db.C("i18n").Insert(trans)
-			if err != nil {
-				ctx.JSON(400, gin.H{
-					"result": false,
-					"err":    err.Error(),
-				})
-
-				return
-			}
+			err = dbTranslations.Append(*trans)
 		} else {
-			info, err := db.C("i18n").Upsert(bson.M{"section": section}, trans)
-			if info.Updated == 0 || err != nil {
-				ctx.JSON(400, gin.H{
-					"result": false,
-					"err":    err.Error(),
-				})
+			err = dbTranslations.Update(section, *trans)
+		}
 
-				return
-			}
+		if err != nil {
+			ctx.JSON(300, gin.H{
+				"result": false,
+				"err":    err.Error(),
+			})
+		}
+
+		dbf.Seek(0, 0)
+		err = json.NewEncoder(dbf).Encode(dbTranslations)
+		if err != nil {
+			ctx.JSON(300, gin.H{
+				"result": false,
+				"err":    err.Error(),
+			})
 		}
 
 		ctx.JSON(200, gin.H{
+			"data":   dbTranslations,
 			"result": true,
 		})
 	})
