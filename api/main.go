@@ -32,10 +32,13 @@ type Translation struct {
 }
 
 // the db Object, it reflect to the dbfile
-type dbfileHandler []Translation
+type dbfileHandler struct {
+	dbfile     *os.File
+	collection []Translation
+}
 
-func (d *dbfileHandler) Section(name string, trans *Translation) error {
-	for _, i := range *d {
+func (h *dbfileHandler) Section(name string, trans *Translation) error {
+	for _, i := range h.collection {
 		if i.Section == name {
 			*trans = i
 			return nil
@@ -45,24 +48,49 @@ func (d *dbfileHandler) Section(name string, trans *Translation) error {
 	return errors.New("section does not exist")
 }
 
-func (d *dbfileHandler) Append(trans Translation) error {
+func (h *dbfileHandler) Append(trans Translation) error {
 	if trans.Section == "" {
 		return errors.New("section can't be blank")
 	}
 
-	*d = append(*d, trans)
-	return nil
+	h.collection = append(h.collection, trans)
+	return h.Sync()
 }
 
-func (d *dbfileHandler) Update(name string, trans Translation) error {
-	for k, i := range *d {
+func (h *dbfileHandler) Update(name string, trans Translation) error {
+	for k, i := range h.collection {
 		if i.Section == name {
-			(*d)[k] = trans
-			return nil
+			h.collection[k] = trans
+			return h.Sync()
 		}
 	}
 
 	return errors.New("section does not exist")
+}
+
+func (h *dbfileHandler) Sync() error {
+	h.dbfile.Seek(0, 0)
+	return json.NewEncoder(h.dbfile).Encode(h.collection)
+}
+
+func newDbfileHandler(f *os.File) *dbfileHandler {
+	h := new(dbfileHandler)
+	h.dbfile = f
+	h.collection = make([]Translation, 0, 100)
+
+	finfo, err := h.dbfile.Stat()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if finfo.Size() != 0 {
+		err = json.NewDecoder(h.dbfile).Decode(&h.collection)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+
+	return h
 }
 
 func newTranslation() *Translation {
@@ -72,7 +100,7 @@ func newTranslation() *Translation {
 }
 
 var host = flag.String("host", ":8080", "Ex: localhost:8080")
-var dbfile = flag.String("dbfile", "tmp/db.json", "the file to store translation data")
+var dbfile = flag.String("dbfile", "", "the file to store translation data")
 
 func main() {
 	flag.Parse()
@@ -89,18 +117,7 @@ func main() {
 	}
 	defer dbf.Close()
 
-	dbTranslations := new(dbfileHandler)
-	finfo, err := dbf.Stat()
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if finfo.Size() != 0 {
-		err = json.NewDecoder(dbf).Decode(dbTranslations)
-		if err != nil {
-			panic(err.Error())
-		}
-	}
+	dbh := newDbfileHandler(dbf)
 
 	r := gin.Default()
 	r.Use(func(ctx *gin.Context) {
@@ -112,17 +129,16 @@ func main() {
 	})
 
 	// Dump data data output
-	r.GET("/translation", func(ctx *gin.Context) {
-		ctx.JSON(200, dbTranslations)
+	r.GET("/db", func(ctx *gin.Context) {
+		ctx.JSON(200, dbh.collection)
 	})
 
 	// Retrun th given language translation
 	r.GET("/translation/:lang", func(ctx *gin.Context) {
 		lang := ctx.Param("lang")
-
 		secArr := make([]Section, 0, 10)
 
-		for _, trans := range *dbTranslations {
+		for _, trans := range dbh.collection {
 			items := make(SectionItems)
 			for original, ts := range trans.Items {
 				find := false
@@ -173,7 +189,7 @@ func main() {
 		}
 
 		trans := newTranslation()
-		err = dbTranslations.Section(section, trans)
+		err = dbh.Section(section, trans)
 		isNewSection := err != nil
 
 		//new section name
@@ -218,20 +234,11 @@ func main() {
 
 		if isNewSection {
 			trans.Section = section
-			err = dbTranslations.Append(*trans)
+			err = dbh.Append(*trans)
 		} else {
-			err = dbTranslations.Update(section, *trans)
+			err = dbh.Update(section, *trans)
 		}
 
-		if err != nil {
-			ctx.JSON(300, gin.H{
-				"result": false,
-				"err":    err.Error(),
-			})
-		}
-
-		dbf.Seek(0, 0)
-		err = json.NewEncoder(dbf).Encode(dbTranslations)
 		if err != nil {
 			ctx.JSON(300, gin.H{
 				"result": false,
@@ -240,7 +247,6 @@ func main() {
 		}
 
 		ctx.JSON(200, gin.H{
-			"data":   dbTranslations,
 			"result": true,
 		})
 	})
