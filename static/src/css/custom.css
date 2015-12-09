@@ -18,6 +18,11 @@ table th, table td {
     left: 180px;
     top: -3px;
 }
+#header .search-bar {
+    position: absolute;
+    right: 0;
+    top: -3px;
+}
 .panel {
     margin: 20px auto;
     border-radius: 4px;

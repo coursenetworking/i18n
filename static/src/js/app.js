@@ -6,7 +6,7 @@ i18n.directive("supermode", function(){
         transclude: true,
         template: "<div class='super-mode' ng-class=\"{'active': supermode}\" ng-transclude></div>",
         controller: function($scope){
-            $scope.supermode = false;
+            $scope.supermode = true;
         },
         link: function(scope, elem, attrs){
             var keyMemos = [], timer = null;
@@ -31,20 +31,6 @@ i18n.directive("supermode", function(){
     }
 });
 
-// i18n.filter("fSectionName", function(){
-//     return function(input){
-//         var outputs = {};
-//         for (var section in $scope.sections) {
-//             if (object.hasOwnProperty(section)) {
-//                 if(input == section) {
-//                     outputs[section] = $scope.sctions[section];
-//                 }
-//             }
-//         }
-//         return outputs;
-//     }
-// });
-
 i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $http, $timeout){
     $scope.langs = {
         "af_ZA": "Afrikaans",
@@ -66,7 +52,7 @@ i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $ht
         "en_GB": "English (UK)",
         "en_PI": "English (Pirate)",
         "en_UD": "English (Upside Down)",
-        "en_US": "English (US)",
+        // "en_US": "English (US)",
         "eo_EO": "Esperanto",
         "es_CO": "Español (Colombia)",
         "es_ES": "Español (España)",
@@ -145,7 +131,7 @@ i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $ht
         "zh_HK": "中文(香港)",
         "zh_TW": "中文(台灣)"
     };
-    $scope.lang = "en_US";
+    $scope.lang = "zh_CN";
     $scope.fetch = function(){
         $timeout(function(){
             $http({
@@ -157,11 +143,10 @@ i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $ht
                     $scope.sections = res.data;
                     var sections = {}, s = null;
                     for (var k in $scope.sections) {
-                        var s = $scope.sections[k], items = [];
+                        var s = $scope.sections[k];
                         for(var i in s.items) {
-                            items.push({source: i, tolang: s.items[i]});
+                            s.items[i].source = i;
                         }
-                        s.items = items;
                     }
                 }
             }, function(){
@@ -173,8 +158,8 @@ i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $ht
 
     $scope.addSection = function() {
         $scope.sections.unshift({
-            items: [],
-            section: +new Date(),
+            items: {},
+            rename_to: +new Date(),
             to_lang: $scope.lang
         });
     }
@@ -206,15 +191,7 @@ i18n.directive("langsectioncreate", function(){
     return {
         restrict: "AE",
         template: "<section class=\"panel panel-lang super-mode-show\"><div langsectionform></div></section>",
-        replace: true,
-        controller: function($scope) {
-            $scope.section = {
-                to_lang: $scope.lang,
-                items: [
-                    {source: "", tolang: ""}
-                ]
-            }
-        }
+        replace: true
     }
 });
 
@@ -228,17 +205,23 @@ i18n.directive("langsectionlist", function(){
 
 i18n.controller("sectionCtrl", ["$scope", "$http", function($scope, $http){
         $scope.saveSection = function() {
-            var items = {}, item = null;
-            for (var i in $scope.section.items) {
-                if ($scope.section.items.hasOwnProperty(i)) {
-                    item = $scope.section.items[i];
-                    items[item.source] = item.tolang;
+            //@TODO delete items.source
+            var data = angular.copy($scope.section, {});
+            for (var s in data.items) {
+                if (data.items.hasOwnProperty(s)) {
+                    var item = data.items[s];
+                    if(item.is_new) {
+                        item.source && (delete item.source)
+                        data.items[item.rename_to] = item;
+                        delete data.items[s];
+                    }
                 }
             }
+
             $http({
                 method: "POST",
                 url: 'http://localhost:8080/translation/' + $scope.lang + '/' + $scope.section.section,
-                data: {items: items}
+                data: data
             }).then(function(){
                 alert('SAVE SUCCESSFULLY.');
             });
@@ -246,14 +229,15 @@ i18n.controller("sectionCtrl", ["$scope", "$http", function($scope, $http){
         };
 
         $scope.addLang = function() {
-            $scope.section.items.push({
-                source: "",
-                tolang: ""
-            });
+            $scope.section.items[+new Date()] = {
+                rename_to: "",
+                translate_to: "",
+                is_new: true
+            }
         }
 
-        $scope.deleteLang = function(index) {
-            $scope.section.items.splice(index, 1);
+        $scope.deleteLang = function(source) {
+            $scope.section.items[source] && delete $scope.section.items[source];
         }
     }]
 );

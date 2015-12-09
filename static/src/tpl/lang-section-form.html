@@ -19,18 +19,18 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="item in section.items">
+                <tr ng-repeat="(source, item) in section.items" ng-init="item.rename_to = item.source">
                     <td>
                         <div class="super-mode-show">
-                            <input type="text" ng-model="item.source">
+                            <input type="text" ng-model="item.rename_to">
                         </div>
                         <div class="super-mode-hide">
                             <label>{{item.source}}</label>
                         </div>
                     </td>
                     <td>
-                        <input type="text" title="{{item.source}}" ng-model="item.tolang">
-                        <a class="super-mode-show-inline" href="javascript:;" ng-click="deleteLang($index)">-delete</a>
+                        <input type="text" title="{{item.source}}" ng-model="item.translate_to">
+                        <a class="super-mode-show-inline" href="javascript:;" ng-click="deleteLang(source)">-delete</a>
                     </td>
                 </tr>
             </tbody>

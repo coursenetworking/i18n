@@ -23,9 +23,9 @@
                     <langselect lang="lang" change-lang="fetch()">
                         <option ng-repeat="(k, v) in langs" value="{{k}}" ng-selected="{{v == lang}}">{{v}}</option>
                     </langselect>
+                    <input class="search-bar" type="search" ng-model="searchSection" placeholder="Search Section...">{{searchSection}}
                 </header>
                 <div id="body">
-                    <input type="search" ng-model="searchSection">{{searchSection}}
                     <a href="javascript:;" class="super-mode-show" ng-click="addSection()">+ Section</a>
                     <div langsectionlist></div>
                 </div>
