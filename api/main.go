@@ -36,6 +36,12 @@ var dbhost = flag.String("dbhost", "", "Ex: localhost:27017")
 var dbname = flag.String("dbname", "", "Ex: cnv3")
 var host = flag.String("host", ":8080", "Ex: localhost:8080")
 
+func newTranslation() *Translation {
+	trans := new(Translation)
+	trans.Items = make(TranslationItems)
+	return trans
+}
+
 func main() {
 	flag.Parse()
 
@@ -66,7 +72,7 @@ func main() {
 		lang := ctx.Param("lang")
 
 		secArr := make([]Section, 0, 10)
-		trans := new(Translation)
+		trans := newTranslation()
 		for iter.Next(trans) {
 			items := make(SectionItems)
 			for original, ts := range trans.Items {
@@ -116,16 +122,9 @@ func main() {
 			return
 		}
 
-		trans := new(Translation)
+		trans := newTranslation()
 		err = db.C("i18n").Find(bson.M{"section": section}).One(trans)
-		if err != nil {
-			ctx.JSON(400, gin.H{
-				"result": false,
-				"err":    "section does not exist",
-			})
-
-			return
-		}
+		isNewSection := err != nil
 
 		// new section name
 		if sec.RenameTo != "" {
@@ -167,14 +166,27 @@ func main() {
 			}
 		}
 
-		info, err := db.C("i18n").Upsert(bson.M{"section": section}, trans)
-		if info.Updated == 0 || err != nil {
-			ctx.JSON(400, gin.H{
-				"result": false,
-				"err":    err.Error(),
-			})
+		if isNewSection {
+			trans.Section = section
+			err = db.C("i18n").Insert(trans)
+			if err != nil {
+				ctx.JSON(400, gin.H{
+					"result": false,
+					"err":    err.Error(),
+				})
 
-			return
+				return
+			}
+		} else {
+			info, err := db.C("i18n").Upsert(bson.M{"section": section}, trans)
+			if info.Updated == 0 || err != nil {
+				ctx.JSON(400, gin.H{
+					"result": false,
+					"err":    err.Error(),
+				})
+
+				return
+			}
 		}
 
 		ctx.JSON(200, gin.H{
