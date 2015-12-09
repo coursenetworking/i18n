@@ -63,8 +63,8 @@ You can build this API by running `build.sh` or just run the program from `bin` 
 
 For development:
 	
-	./cni18n --dbhost=<host name> --dbname=<db name>
+	./cni18n --dbfile=tmp/db.json
 
 For production:
 
-	export GIN_MODE=release && ./i18n-api --dbhost=<host name> --dbname=<db name>
+	export GIN_MODE=release && ./i18n-api --dbfile=data/db.json
