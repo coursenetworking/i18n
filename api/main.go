@@ -99,6 +99,34 @@ func newTranslation() *Translation {
 	return trans
 }
 
+// convert the database one section item to API json section item structure
+func toSectionStruct(trans *Translation, lang string) Section {
+	items := make(SectionItems)
+	for original, ts := range trans.Items {
+		find := false
+		for langName, translatedTo := range ts {
+			if langName == lang {
+				find = true
+				items[original] = SectionItem{
+					TranslateTo: translatedTo,
+				}
+				break
+			}
+		}
+
+		if !find {
+			items[original] = SectionItem{
+				TranslateTo: "",
+			}
+		}
+	}
+
+	return Section{
+		Section: trans.Section,
+		Items:   items,
+	}
+}
+
 var host = flag.String("host", ":8080", "Ex: localhost:8080")
 var dbfile = flag.String("dbfile", "", "the file to store translation data")
 
@@ -139,35 +167,32 @@ func main() {
 		secArr := make([]Section, 0, 10)
 
 		for _, trans := range dbh.collection {
-			items := make(SectionItems)
-			for original, ts := range trans.Items {
-				find := false
-				for langName, translatedTo := range ts {
-					if langName == lang {
-						find = true
-						items[original] = SectionItem{
-							TranslateTo: translatedTo,
-						}
-						break
-					}
-				}
-
-				if !find {
-					items[original] = SectionItem{
-						TranslateTo: "",
-					}
-				}
-			}
-
-			secArr = append(secArr, Section{
-				Section: trans.Section,
-				Items:   items,
-			})
+			secArr = append(secArr, toSectionStruct(&trans, lang))
 		}
 
 		ctx.JSON(200, gin.H{
 			"result": true,
 			"data":   secArr,
+		})
+	})
+
+	r.GET("/translation/:lang/:section", func(ctx *gin.Context) {
+		lang := ctx.Param("lang")
+		sectionName := ctx.Param("section")
+
+		trans := newTranslation()
+		err := dbh.Section(sectionName, trans)
+		if err != nil {
+			ctx.JSON(404, gin.H{
+				"result": false,
+				"err":    err.Error(),
+			})
+			return
+		}
+
+		ctx.JSON(200, gin.H{
+			"result": true,
+			"data":   toSectionStruct(trans, lang),
 		})
 	})
 
@@ -240,7 +265,7 @@ func main() {
 		}
 
 		if err != nil {
-			ctx.JSON(300, gin.H{
+			ctx.JSON(500, gin.H{
 				"result": false,
 				"err":    err.Error(),
 			})
