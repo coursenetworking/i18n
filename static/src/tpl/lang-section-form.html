@@ -1,4 +1,4 @@
-<form ng-submit="saveSection()" ng-controller="sectionCtrl">
+<form ng-controller="sectionCtrl">
     <div class="panel-heading super-mode-show">
         <label for="section_name">Section Name:</label>
         <input id="section_name" type="text" ng-model="section.section">
@@ -19,7 +19,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="(source, item) in section.items" ng-init="item.rename_to = item.source">
+                <tr ng-repeat="(source, item) in section.items" ng-init="item.rename_to = source">
                     <td>
                         <div class="super-mode-show">
                             <input type="text" ng-model="item.rename_to">
@@ -46,7 +46,7 @@
         </table>
     </div>
     <div class="panel-footer text-right">
-        <button type="primary">SAVE</button>
-        <button ng-click="resetFromData()">RESET</button>
+        <button type="primary" ng-click="saveSection()">SAVE</button>
+        <button ng-click="resetSection()">RESET</button>
     </div>
 </form>

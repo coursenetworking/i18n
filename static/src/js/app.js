@@ -6,7 +6,7 @@ i18n.directive("supermode", function(){
         transclude: true,
         template: "<div class='super-mode' ng-class=\"{'active': supermode}\" ng-transclude></div>",
         controller: function($scope){
-            $scope.supermode = true;
+            $scope.supermode = false;
         },
         link: function(scope, elem, attrs){
             var keyMemos = [], timer = null;
@@ -204,32 +204,35 @@ i18n.directive("langsectionlist", function(){
 });
 
 i18n.controller("sectionCtrl", ["$scope", "$http", function($scope, $http){
+        var _cacheSection = angular.extend({}, $scope.section);
         $scope.saveSection = function() {
             //@TODO delete items.source
-            var data = angular.copy($scope.section, {});
-            for (var s in data.items) {
-                if (data.items.hasOwnProperty(s)) {
-                    var item = data.items[s];
-                    if(item.is_new) {
-                        item.source && (delete item.source)
-                        data.items[item.rename_to] = item;
-                        delete data.items[s];
-                    }
+            var newItems = {};
+            for (var s in $scope.section.items) {
+                var item = $scope.section.items[s];
+                if(item.is_new) {
+                    newItems[item.rename_to] = item;
+                    delete $scope.section.items[s];
                 }
             }
-
+            angular.extend($scope.section.items, newItems);
             $http({
                 method: "POST",
                 url: 'http://localhost:8080/translation/' + $scope.lang + '/' + $scope.section.section,
-                data: data
+                data: $scope.section
             }).then(function(){
                 alert('SAVE SUCCESSFULLY.');
             });
             return false;
         };
 
+        $scope.resetSection = function() {
+            $scope.section = angular.extend($scope.section, _cacheSection);
+            return false;
+        };
+
         $scope.addLang = function() {
-            $scope.section.items[+new Date()] = {
+            $scope.section.items[""] = {
                 rename_to: "",
                 translate_to: "",
                 is_new: true
