@@ -141,13 +141,6 @@ i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $ht
                 res = res.data || {};
                 if(res.result) {
                     $scope.sections = res.data;
-                    var sections = {}, s = null;
-                    for (var k in $scope.sections) {
-                        var s = $scope.sections[k];
-                        for(var i in s.items) {
-                            s.items[i].source = i;
-                        }
-                    }
                 }
             }, function(){
 
@@ -232,6 +225,11 @@ i18n.controller("sectionCtrl", ["$scope", "$http", function($scope, $http){
         };
 
         $scope.addLang = function() {
+            var newSection = $scope.section.items[""];
+            if(newSection) {
+                $scope.section.items[newSection.rename_to] = newSection;
+                delete $scope.section.items[""];
+            }
             $scope.section.items[""] = {
                 rename_to: "",
                 translate_to: "",
