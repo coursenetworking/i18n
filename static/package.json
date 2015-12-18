@@ -1,0 +1,28 @@
+{
+  "name": "i18n-page",
+  "version": "1.0.0",
+  "description": "i18n collecting page",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/coursenetworking/i18n.git"
+  },
+  "keywords": [
+    "i18n",
+    "frontend"
+  ],
+  "author": "KingChung (kingchung@outlook.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/coursenetworking/i18n/issues"
+  },
+  "homepage": "https://github.com/coursenetworking/i18n",
+  "dependencies": {
+    "bower": "^1.7.1",
+    "gulp": "^3.9.0",
+    "gulp-uglify": "^1.5.1"
+  }
+}

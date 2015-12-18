@@ -6,7 +6,7 @@
     "King Chung <kingchung@outlook.com>"
   ],
   "description": "A page for admin set multiple languages",
-  "main": "src/index.html",
+  "main": "dist/index.html",
   "keywords": [
     "i18n"
   ],
