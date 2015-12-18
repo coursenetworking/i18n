@@ -1,4 +1,4 @@
-var i18n = angular.module("i18n", []);
+var i18n = angular.module("i18n", ["i18n.config"]);
 i18n.directive("supermode", function(){
     return {
         restrict: "AE",
@@ -31,7 +31,7 @@ i18n.directive("supermode", function(){
     }
 });
 
-i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $http, $timeout){
+i18n.controller("langCtrl", ["$scope", "$http", "$timeout", "API", function($scope, $http, $timeout, API){
     $scope.langs = {
         "af_ZA": "Afrikaans",
         "ar_AR": "العربية",
@@ -132,11 +132,12 @@ i18n.controller("langCtrl", ["$scope", "$http", "$timeout", function($scope, $ht
         "zh_TW": "中文(台灣)"
     };
     $scope.lang = "zh_CN";
+    console.log(API);
     $scope.fetch = function(){
         $timeout(function(){
             $http({
                 method: 'GET',
-                url: 'http://localhost:8080/translation/' + $scope.lang
+                url: API.TRANSLATETION + $scope.lang
             }).then(function(res){
                 res = res.data || {};
                 if(res.result) {
@@ -196,7 +197,7 @@ i18n.directive("langsectionlist", function(){
     }
 });
 
-i18n.controller("sectionCtrl", ["$scope", "$http", function($scope, $http){
+i18n.controller("sectionCtrl", ["$scope", "$http", "API", function($scope, $http, API){
         var _cacheSection = angular.extend({}, $scope.section);
         $scope.saveSection = function() {
             //@TODO delete items.source
@@ -211,7 +212,7 @@ i18n.controller("sectionCtrl", ["$scope", "$http", function($scope, $http){
             angular.extend($scope.section.items, newItems);
             $http({
                 method: "POST",
-                url: 'http://localhost:8080/translation/' + $scope.lang + '/' + $scope.section.section,
+                url: API.TRANSLATETION + $scope.lang + '/' + $scope.section.section,
                 data: $scope.section
             }).then(function(){
                 alert('SAVE SUCCESSFULLY.');
