@@ -1,5 +1,8 @@
 #!/bin/sh
 
+echo "building bindata.go"
+go-bindata ./static/dist/...
+
 build_darwin='GOOS=darwin GOARCH=amd64 go build -o bin/cni18n_appdarwin64'
 build_linux='GOOS=linux GOARCH=amd64 go build -o bin/cni18n_applinux64'
 build_windows='GOOS=windows GOARCH=amd64 go build -o bin/cni18n_appwin64.exe'

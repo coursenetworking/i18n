@@ -5,7 +5,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"mime"
 	"os"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 )
@@ -280,11 +282,50 @@ func main() {
 		//nothing
 	})
 
-	r.Static("js", "static/src/js")
-	r.Static("css", "static/src/css")
-	r.Static("tpl", "static/src/tpl")
-	r.Static("bower_components", "static/src/bower_components")
-	r.StaticFile("/", "static/src/index.html")
+	r.GET("/static/*path", getAsset)
+	r.GET("/", getHome)
 
 	r.Run(*host)
+}
+
+func getHome(ctx *gin.Context) {
+	serveStaticAsset("/dist/index.html", ctx)
+}
+
+func getAsset(ctx *gin.Context) {
+	serveStaticAsset(ctx.Params.ByName("path"), ctx)
+}
+
+func serveStaticAsset(path string, ctx *gin.Context) {
+	data, err := Asset("static" + path)
+	if err != nil {
+		ctx.String(400, err.Error())
+		return
+	}
+
+	ctx.Data(200, assetContentType(path), data)
+}
+
+var extraMimeTypes = map[string]string{
+	".icon": "image-x-icon",
+	".ttf":  "application/x-font-ttf",
+	".woff": "application/x-font-woff",
+	".eot":  "application/vnd.ms-fontobject",
+	".svg":  "image/svg+xml",
+	".html": "text/html; charset-utf-8",
+}
+
+func assetContentType(name string) string {
+	ext := filepath.Ext(name)
+	result := mime.TypeByExtension(ext)
+
+	if result == "" {
+		result = extraMimeTypes[ext]
+	}
+
+	if result == "" {
+		result = "text/plain; charset=utf-8"
+	}
+
+	return result
 }
