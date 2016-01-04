@@ -115,7 +115,7 @@ i18n.directive("langsectionlist", function(){
 });
 
 i18n.controller("sectionCtrl", ["$scope", "$http", "API", function($scope, $http, API){
-        var _cacheSection = angular.extend({}, $scope.section);
+        var _cacheSection = angular.copy($scope.section);
         $scope.saveSection = function() {
             //@TODO delete items.source
             var newItems = {};
