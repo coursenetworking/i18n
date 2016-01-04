@@ -1,0 +1,46 @@
+<form ng-controller="sectionCtrl">
+    <div class="panel-heading" ng-init="section.rename_to = section.section">
+        <label for="section_name">Section Name:</label>
+        <input id="section_name" type="text" ng-model="section.rename_to">
+    </div>
+    <div class="panel-body">
+        <table class="table-responsive">
+            <thead>
+                <tr>
+                    <th class="width-6">
+                        Source
+                    </th>
+                    <th class="width-6">
+                        {{langs[lang]}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="(source, item) in section.items" ng-init="item.rename_to = source">
+                    <td>
+                        <div>
+                            <input type="text" ng-model="item.rename_to">
+                        </div>
+                    </td>
+                    <td>
+                        <input type="text" title="{{item.source}}" ng-model="item.translate_to">
+                        <a href="javascript:;" ng-click="deleteLang(source)">-delete</a>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2">
+                        <div>
+                            <a href="javascript:;" ng-click="addLang()">+add</a>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="panel-footer text-right">
+        <button type="primary" ng-click="saveSection()">SAVE</button>
+        <button ng-click="resetSection()">RESET</button>
+    </div>
+</form>
