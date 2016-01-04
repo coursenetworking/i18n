@@ -74,10 +74,26 @@ i18n.directive("langselect", function(){
     }
 });
 
-i18n.directive("langsectionform", function(){
+i18n.directive("langsectioncreate", function(){
     return {
         restrict: "AE",
-        templateUrl: "tpl/lang-section-form.html",
+        templateUrl: "tpl/lang-section-create.html",
+        replace: true
+    }
+});
+
+i18n.directive("langsectionedit", function(){
+    return {
+        restrict: "AE",
+        templateUrl: "tpl/lang-section-edit.html",
+        replace: true
+    }
+});
+
+i18n.directive("langsectionview", function(){
+    return {
+        restrict: "AE",
+        templateUrl: "tpl/lang-section-view.html",
         replace: true
     }
 });
@@ -85,7 +101,7 @@ i18n.directive("langsectionform", function(){
 i18n.directive("langsectioncreate", function(){
     return {
         restrict: "AE",
-        template: "<section class=\"panel panel-lang super-mode-show\"><div langsectionform></div></section>",
+        template: "<section class=\"panel panel-lang\"><div langsectioncreate></div></section>",
         replace: true
     }
 });
@@ -93,7 +109,7 @@ i18n.directive("langsectioncreate", function(){
 i18n.directive("langsectionlist", function(){
     return {
         restrict: "AE",
-        template: "<section class=\"panel panel-lang\" ng-repeat=\"(k, section) in sections|filter:searchSection as results\"><div langsectionform></div></section>",
+        template: "<section class=\"panel panel-lang\" ng-repeat=\"(k, section) in sections|filter:searchSection as results\" ng-switch=\"supermode\"><div ng-switch-when=\"true\" langsectionedit></div><div ng-switch-default langsectionview></div></section>",
         replace: true
     }
 });
