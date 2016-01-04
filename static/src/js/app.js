@@ -1,4 +1,4 @@
-var i18n = angular.module("i18n", ["i18n.config", "angucomplete-alt"]);
+var i18n = angular.module("i18n", ["i18n.config"]);
 i18n.directive("supermode", function(){
     return {
         restrict: "AE",
