@@ -278,7 +278,7 @@ func main() {
 		})
 	})
 
-	r.OPTIONS("*path", func(ctx *gin.Context) {
+	r.OPTIONS("*path", apiHeader, func(ctx *gin.Context) {
 		//nothing
 	})
 
