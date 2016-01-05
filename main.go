@@ -289,7 +289,7 @@ func main() {
 }
 
 func getHome(ctx *gin.Context) {
-	serveStaticAsset("/dist/index.html", ctx)
+	serveStaticAsset("/index.html", ctx)
 }
 
 func getAsset(ctx *gin.Context) {
@@ -297,7 +297,7 @@ func getAsset(ctx *gin.Context) {
 }
 
 func serveStaticAsset(path string, ctx *gin.Context) {
-	data, err := Asset("static" + path)
+	data, err := Asset("static/dist" + path)
 	if err != nil {
 		ctx.String(400, err.Error())
 		return
