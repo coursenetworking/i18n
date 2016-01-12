@@ -1,6 +1,6 @@
 var config = {
     API: {
-        TRANSLATETION: "/translation/"
+        TRANSLATETION: "http://localhost:8080/translation/"
     },
     LANGUAGES: {
         "af_ZA": "Afrikaans",

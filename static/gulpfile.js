@@ -28,7 +28,7 @@ gulp.task('revjs', ['tpl', 'rev'], function() {
 });
 
 gulp.task('js', function(){
-    return gulp.src(['src/js/*.js'])
+    return gulp.src(['src/js/*.js', '!js/config.js'])
         .pipe(rev())
         .pipe(gulp.dest('dist/js'))
         .pipe(rev.manifest())

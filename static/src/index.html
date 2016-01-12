@@ -20,24 +20,30 @@
 <body>
     <supermode>
         <div class="container" ng-controller="langCtrl">
-            <header id="header">
-                <h1>i18n Setting</h1>
-                <langselect lang="lang" change-lang="fetch()">
-                    <option ng-repeat="(k, v) in langs" value="{{k}}" ng-selected="{{v == lang}}">{{v}}</option>
-                </langselect>
-                <input class="search-bar" type="search" ng-model="searchSection" placeholder="Search Section...">
-                <angucomplete-alt id="ex1" placeholder="Search countries" pause="100" selected-object="selectedCountry" local-data="countries" search-fields="name" title-field="name" minlength="1" input-class="form-control form-control-small" />
-            </header>
-            <div id="body">
-                <a href="javascript:;" class="super-mode-show" ng-click="addSection()">+ Section</a>
-                <div langsectionlist></div>
+            <div id="content" ng-class="{'search-form': isIndex}">
+                <div id="search-bar" ng-class="{content: isIndex, group: !isIndex}">
+                    <h1 ng-class="{left: !isIndex}">i18n Setting</h1>
+                    <form class="forms" ng-class="{left: !isIndex, 'ml-10': !isIndex}" style="margin-bottom: 0;">
+                        <row>
+                            <column cols="4">
+                                <langselect lang="lang" change-lang="fetch()">
+                                    <option ng-repeat="(k, v) in langs" value="{{k}}" ng-selected="{{v == lang}}">{{v}}</option>
+                                </langselect>
+                            </column>
+                            <column cols="8">
+                                <input class="search-bar" type="search" ng-model="searchTerm" placeholder="Search Section...">
+                            </column>
+                        </row>
+                    </form>
+                </div>
+                <hr>
+                <div id="body" ng-show="!isIndex">
+                    <a href="javascript:;" class="super-mode-show" ng-click="addSection()">+ Section</a>
+                    <div langsectionlist></div>
+                </div>
             </div>
         </div>
     </supermode>
 </body>
-<script>
-
-
-</script>
 
 </html>
