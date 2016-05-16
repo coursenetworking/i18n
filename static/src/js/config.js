@@ -1,4 +1,5 @@
 var config = {
+    GOOGLE_MODE: false,
     API: {
         TRANSLATETION: "http://localhost:8080/translation/"
     },

@@ -31,10 +31,10 @@ i18n.directive("supermode", function(){
     }
 });
 
-i18n.controller("langCtrl", ["$scope", "$http", "$timeout", "API", "LANGUAGES", function($scope, $http, $timeout, API, LANGUAGES){
+i18n.controller("langCtrl", ["$scope", "$http", "$timeout", "API", "LANGUAGES", 'GOOGLE_MODE', function($scope, $http, $timeout, API, LANGUAGES, GOOGLE_MODE){
     $scope.langs = LANGUAGES;
     $scope.lang = "zh_CN";
-    $scope.isIndex = true;
+    $scope.isIndex = GOOGLE_MODE;
 
     $scope.fetch = function(){
         $timeout(function(){
