@@ -67,14 +67,13 @@ i18n.controller("langCtrl", ["$scope", "$http", "$timeout", "API", "LANGUAGES", 
         }
     });
 
+    $scope.search = function(seactionName) {
+        $scope.searchTerm = seactionName;
+    }
+
     $scope.sectionFilter = function(section){
-
-        if(section.is_new) {
+        if(section.is_new || $scope.searchTerm == "") {
             return true;
-        }
-
-        if($scope.searchTerm == "") {
-            return false;
         }
 
         var reg = new RegExp($scope.searchTerm);
@@ -162,7 +161,6 @@ i18n.controller("sectionCtrl", ["$scope", "$http", "API", function($scope, $http
                 url: API.TRANSLATETION + $scope.lang + '/' + $scope.section.section,
                 data: $scope.section
             }).then(function(){
-                alert('SAVE SUCCESSFULLY.');
                 $scope.section.is_new = false;
             });
             return false;

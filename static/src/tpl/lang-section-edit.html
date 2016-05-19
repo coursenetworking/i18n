@@ -4,10 +4,13 @@
         <input id="section_name" type="text" ng-model="section.rename_to">
     </div>
     <div class="panel-body">
-        <table class="table-responsive">
+        <table class="table-responsive table-stripped">
             <thead>
                 <tr>
-                    <th class="width-6">
+                    <th class="width-1">
+                        No.
+                    </th>
+                    <th class="width-5">
                         Source
                     </th>
                     <th class="width-6">
@@ -18,11 +21,14 @@
             <tbody>
                 <tr ng-repeat="(source, item) in section.items">
                     <td>
+                        {{$index + 1}}.
+                    </td>
+                    <td>
                         <div>
                             <textarea type="text" ng-model="item.rename_to"></textarea>
                         </div>
                     </td>
-                    <td>
+                    <td class="text-right">
                         <textarea title="{{item.source}}" ng-model="item.translate_to"></textarea>
                         <a href="javascript:;" ng-click="deleteLang(source)">-delete</a>
                     </td>
@@ -30,7 +36,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="2">
+                    <td colspan="3">
                         <div>
                             <a href="javascript:;" ng-click="addLang()">+add</a>
                         </div>
