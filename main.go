@@ -129,6 +129,7 @@ func toSectionStruct(trans *Translation, lang string) Section {
 	}
 }
 
+var debug = flag.Bool("debug", false, "debug mode or not")
 var host = flag.String("host", ":8080", "Ex: localhost:8080")
 var dbfile = flag.String("dbfile", "", "the file to store translation data")
 
@@ -282,8 +283,17 @@ func main() {
 		//nothing
 	})
 
-	r.GET("/static/*path", getAsset)
-	r.GET("/", getHome)
+	if *debug {
+		r.StaticFile("/", "static/src/index.html")
+
+		r.Static("/js", "static/src/js")
+		r.Static("/css", "static/src/css")
+		r.Static("/bower_components", "static/src/bower_components")
+		r.Static("/tpl", "static/src/tpl")
+	} else {
+		r.GET("/static/*path", getAsset)
+		r.GET("/", getHome)
+	}
 
 	r.Run(*host)
 }
