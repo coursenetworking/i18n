@@ -287,6 +287,7 @@ func main() {
 		r.StaticFile("/", "static/src/index.html")
 
 		r.Static("/js", "static/src/js")
+		r.Static("/img", "static/src/img")
 		r.Static("/css", "static/src/css")
 		r.Static("/bower_components", "static/src/bower_components")
 		r.Static("/tpl", "static/src/tpl")
