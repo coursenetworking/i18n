@@ -67,14 +67,13 @@ i18n.controller("langCtrl", ["$scope", "$http", "$timeout", "API", "LANGUAGES", 
         }
     });
 
+    $scope.search = function(seactionName) {
+        $scope.searchTerm = seactionName;
+    }
+
     $scope.sectionFilter = function(section){
-
-        if(section.is_new) {
+        if(section.is_new || $scope.searchTerm == "") {
             return true;
-        }
-
-        if($scope.searchTerm == "") {
-            return false;
         }
 
         var reg = new RegExp($scope.searchTerm);
@@ -102,7 +101,7 @@ i18n.directive("langselect", function(){
 i18n.directive("langsectioncreate", function(){
     return {
         restrict: "AE",
-        templateUrl: "static/static/tpl/lang-section-create-7a4d8aa21a.html",
+        templateUrl: "static/tpl/lang-section-create-7a4d8aa21a.html",
         replace: true
     }
 });
@@ -110,7 +109,7 @@ i18n.directive("langsectioncreate", function(){
 i18n.directive("langsectionedit", function(){
     return {
         restrict: "AE",
-        templateUrl: "static/static/tpl/lang-section-edit-cc44a7aef9.html",
+        templateUrl: "static/tpl/lang-section-edit-cc44a7aef9.html",
         replace: true
     }
 });
@@ -118,7 +117,7 @@ i18n.directive("langsectionedit", function(){
 i18n.directive("langsectionview", function(){
     return {
         restrict: "AE",
-        templateUrl: "static/static/tpl/lang-section-view-b6fbb1d1ce.html",
+        templateUrl: "static/tpl/lang-section-view-b6fbb1d1ce.html",
         replace: true
     }
 });
@@ -162,7 +161,6 @@ i18n.controller("sectionCtrl", ["$scope", "$http", "API", function($scope, $http
                 url: API.TRANSLATETION + $scope.lang + '/' + $scope.section.section,
                 data: $scope.section
             }).then(function(){
-                alert('SAVE SUCCESSFULLY.');
                 $scope.section.is_new = false;
             });
             return false;

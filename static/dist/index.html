@@ -11,37 +11,47 @@
           <script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
     <link rel="stylesheet" href="static/css/kube-b2e9489113.css">
-    <link rel="stylesheet" href="static/css/custom-8c2ee83d00.css">
+    <link rel="stylesheet" href="static/css/custom-e1f39cc716.css">
     <script src="static/bower_components/angular/angular-c12fee3cfd.js"></script>
     <script src="static/js/config-e79a87c1a2.js"></script>
-    <script src="static/js/app-9aa227ec22.js"></script>
+    <script src="static/js/app-82a7f2a9f2.js"></script>
 </head>
 
 <body>
     <supermode>
         <div class="container" ng-controller="langCtrl">
-            <div id="content" ng-class="{'search-form': isIndex}">
-                <div id="search-bar" ng-class="{content: isIndex, group: !isIndex}">
-                    <h1 ng-class="{left: !isIndex}">i18n Setting</h1>
-                    <form class="forms" ng-class="{left: !isIndex, 'ml-10': !isIndex}" style="margin-bottom: 0;">
-                        <row>
-                            <column cols="4">
-                                <langselect lang="lang" change-lang="fetch()">
-                                    <option ng-repeat="(k, v) in langs" value="{{k}}" ng-selected="{{v == lang}}">{{v}}</option>
-                                </langselect>
-                            </column>
-                            <column cols="8">
-                                <input class="search-bar" type="search" ng-model="searchTerm" placeholder="Search Section...">
-                            </column>
-                        </row>
-                    </form>
+            <div id="content">
+                <div class="group">
+                    <h1 class="left">
+                        <img src="img/logo-i18n.png" alt="Logo" style="width: 72px;height: 72px;">
+                    </h1>
+                    <div class="right" style="height: 72px;line-height: 72px;">
+                        <input type="search" ng-model="searchTerm" placeholder="Search Section...">
+                    </div>
                 </div>
                 <hr>
-                <div id="body" ng-show="!isIndex">
-                    <a href="javascript:;" class="super-mode-show" ng-click="addSection()">+ Section</a>
-                    <div langsectionlist></div>
-                </div>
+                <dl>
+                    <dt><h5>Language</h5></dt>
+                    <dd>
+                        <langselect lang="lang" change-lang="fetch()">
+                            <option ng-repeat="(k, v) in langs" value="{{k}}" ng-selected="{{v == lang}}">{{v}}</option>
+                        </langselect>
+                    </dd>
+                    <dt style="margin-top: 15px;"><h5>All Sections</h5></dt>
+                    <dd>
+                        <blocks cols="8">
+                            <div ng-repeat="(k, section) in sections" style="margin-bottom: 15px;">
+                                <a href="javascript:;" ng-click="search(section.section)">{{section.section}}</a>
+                            </div>
+                        </blocks>
+                    </dd>
+                </dl>
+            <hr>
+            <div id="body" ng-show="!isIndex">
+                <a href="javascript:;" class="super-mode-show" ng-click="addSection()">+ Section</a>
+                <div langsectionlist></div>
             </div>
+        </div>
         </div>
     </supermode>
 </body>
