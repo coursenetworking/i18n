@@ -132,9 +132,12 @@ func toSectionStruct(trans *Translation, lang string) Section {
 var debug = flag.Bool("debug", false, "debug mode or not")
 var host = flag.String("host", ":8080", "Ex: localhost:8080")
 var dbfile = flag.String("dbfile", "", "the file to store translation data")
+var basePath = flag.String("basepath", ".", "the base runtime path")
 
 func main() {
 	flag.Parse()
+
+	os.Chdir(*basePath)
 
 	if *dbfile == "" {
 		fmt.Println(errors.New("Err: dbfile can't be blank"))

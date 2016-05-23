@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "building bindata.go"
-go-bindata ./static/dist/...
+go-bindata static/...
 
 build_darwin='GOOS=darwin GOARCH=amd64 go build -o bin/cni18n_appdarwin64'
 build_linux='GOOS=linux GOARCH=amd64 go build -o bin/cni18n_applinux64'
