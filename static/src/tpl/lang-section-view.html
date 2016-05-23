@@ -24,7 +24,7 @@
                     </td>
                     <td>
                         <div>
-                            <label>{{source}}</label>
+                            <label>{{source.replace('\\', '')}}</label>
                         </div>
                     </td>
                     <td>
@@ -34,8 +34,4 @@
             </tbody>
         </table>
     </div>
-    <!-- <div class="panel-footer text-right">
-        <button type="primary" ng-click="saveSection()">SAVE</button>
-        <button ng-click="resetSection()">RESET</button>
-    </div> -->
 </form>

@@ -117,7 +117,7 @@ i18n.directive("langsectionedit", function(){
 i18n.directive("langsectionview", function(){
     return {
         restrict: "AE",
-        templateUrl: "static/tpl/lang-section-view-b6fbb1d1ce.html",
+        templateUrl: "static/tpl/lang-section-view-c8db2539db.html",
         replace: true
     }
 });
