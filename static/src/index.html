@@ -26,20 +26,21 @@
                         <img src="img/logo-i18n.png" alt="Logo" style="width: 72px;height: 72px;">
                     </h1>
                     <div class="right" style="height: 72px;line-height: 72px;">
+                        <langselect lang="lang" change-lang="fetch()">
+                            <option ng-repeat="(k, v) in langs" value="{{k}}" ng-selected="{{v == lang}}">{{v}}</option>
+                        </langselect>
                         <input type="search" ng-model="searchTerm" placeholder="Search Section...">
                     </div>
                 </div>
                 <hr>
                 <dl>
-                    <dt><h5>Language</h5></dt>
-                    <dd>
-                        <langselect lang="lang" change-lang="fetch()">
-                            <option ng-repeat="(k, v) in langs" value="{{k}}" ng-selected="{{v == lang}}">{{v}}</option>
-                        </langselect>
-                    </dd>
+                    <dt>
+                        bla bla bla ....
+                    </dt>
                     <dt style="margin-top: 15px;"><h5>All Sections</h5></dt>
                     <dd>
                         <blocks cols="8">
+                            <a href="javascript:;" ng-click="search()">all</a>
                             <div ng-repeat="(k, section) in sections" style="margin-bottom: 15px;">
                                 <a href="javascript:;" ng-click="search(section.section)">{{section.section}}</a>
                             </div>
