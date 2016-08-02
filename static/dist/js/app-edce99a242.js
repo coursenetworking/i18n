@@ -124,7 +124,7 @@ i18n.directive("langselect", function() {
 i18n.directive("langsectioncreate", function() {
     return {
         restrict: "AE",
-        templateUrl: "tpl/lang-section-create.html",
+        templateUrl: "static/tpl/lang-section-create-7a4d8aa21a.html",
         replace: true
     }
 });
@@ -132,7 +132,7 @@ i18n.directive("langsectioncreate", function() {
 i18n.directive("langsectionedit", function() {
     return {
         restrict: "AE",
-        templateUrl: "tpl/lang-section-edit.html",
+        templateUrl: "static/tpl/lang-section-edit-cc44a7aef9.html",
         replace: true
     }
 });
@@ -140,7 +140,7 @@ i18n.directive("langsectionedit", function() {
 i18n.directive("langsectionview", function() {
     return {
         restrict: "AE",
-        templateUrl: "tpl/lang-section-view.html",
+        templateUrl: "static/tpl/lang-section-view-c8db2539db.html",
         replace: true
     }
 });
