@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gin-gonic/contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
 
@@ -154,6 +155,8 @@ func main() {
 	dbh := newDbfileHandler(dbf)
 
 	r := gin.Default()
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
+
 	apiHeader := func(ctx *gin.Context) {
 		ctx.Header("Content-Type", "application/json")
 		ctx.Header("Access-Control-Allow-Headers", "Content-Type")
