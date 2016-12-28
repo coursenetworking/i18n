@@ -8,6 +8,7 @@ import (
 	"mime"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/gin-gonic/contrib/gzip"
 	"github.com/gin-gonic/gin"
@@ -38,9 +39,19 @@ type Translation struct {
 type dbfileHandler struct {
 	dbfile     *os.File
 	collection []Translation
+	lock       sync.RWMutex
+}
+
+func (h *dbfileHandler) Collection() []Translation {
+	h.lock.RLock()
+	defer h.lock.RUnlock()
+	return h.collection
 }
 
 func (h *dbfileHandler) Section(name string, trans *Translation) error {
+	h.lock.RLock()
+	defer h.lock.RUnlock()
+
 	for _, i := range h.collection {
 		if i.Section == name {
 			*trans = i
@@ -52,6 +63,9 @@ func (h *dbfileHandler) Section(name string, trans *Translation) error {
 }
 
 func (h *dbfileHandler) Append(trans Translation) error {
+	h.lock.Lock()
+	defer h.lock.Unlock()
+
 	if trans.Section == "" {
 		return errors.New("section can't be blank")
 	}
@@ -61,6 +75,9 @@ func (h *dbfileHandler) Append(trans Translation) error {
 }
 
 func (h *dbfileHandler) Update(name string, trans Translation) error {
+	h.lock.Lock()
+	defer h.lock.Unlock()
+
 	for k, i := range h.collection {
 		if i.Section == name {
 			h.collection[k] = trans
@@ -72,8 +89,13 @@ func (h *dbfileHandler) Update(name string, trans Translation) error {
 }
 
 func (h *dbfileHandler) Sync() error {
+	h.dbfile.Sync()
 	h.dbfile.Seek(0, 0)
 	return json.NewEncoder(h.dbfile).Encode(h.collection)
+}
+
+func (h *dbfileHandler) Close() {
+	h.dbfile.Close()
 }
 
 func newDbfileHandler(f *os.File) *dbfileHandler {
@@ -146,13 +168,14 @@ func main() {
 		return
 	}
 
-	dbf, err := os.OpenFile(*dbfile, os.O_RDWR|os.O_CREATE, 0700)
+	dbf, err := os.OpenFile(*dbfile, os.O_RDWR|os.O_CREATE|os.O_SYNC, 0700)
 	if err != nil {
 		panic(err.Error())
 	}
 	defer dbf.Close()
 
 	dbh := newDbfileHandler(dbf)
+	defer dbh.Close()
 
 	r := gin.Default()
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
@@ -167,7 +190,7 @@ func main() {
 
 	// Dump data data output
 	r.GET("/db", apiHeader, func(ctx *gin.Context) {
-		ctx.JSON(200, dbh.collection)
+		ctx.JSON(200, dbh.Collection())
 	})
 
 	// Retrun th given language translation
@@ -175,7 +198,7 @@ func main() {
 		lang := ctx.Param("lang")
 		secArr := make([]Section, 0, 10)
 
-		for _, trans := range dbh.collection {
+		for _, trans := range dbh.Collection() {
 			secArr = append(secArr, toSectionStruct(&trans, lang))
 		}
 
