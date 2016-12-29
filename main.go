@@ -160,6 +160,8 @@ var basePath = flag.String("basepath", ".", "the base runtime path")
 func main() {
 	flag.Parse()
 
+	reqLocker := newRequestLocker()
+
 	os.Chdir(*basePath)
 
 	if *dbfile == "" {
@@ -195,6 +197,7 @@ func main() {
 
 	// Retrun th given language translation
 	r.GET("/translation/:lang", apiHeader, func(ctx *gin.Context) {
+
 		lang := ctx.Param("lang")
 		secArr := make([]Section, 0, 10)
 
@@ -230,9 +233,15 @@ func main() {
 
 	// Create/Update section translation in given language
 	r.POST("/translation/:to_lang/:section", apiHeader, func(ctx *gin.Context) {
+
 		var err error
 		section := ctx.Param("section")
 		toLang := ctx.Param("to_lang")
+
+		locker := reqLocker.Locker(ctx.Request.URL.EscapedPath())
+		locker.Lock()
+		defer locker.Unlock()
+
 		sec := new(Section)
 		err = ctx.BindJSON(sec)
 
@@ -368,4 +377,29 @@ func assetContentType(name string) string {
 	}
 
 	return result
+}
+
+type requestLocker struct {
+	locks map[string]*sync.RWMutex
+	lock  sync.RWMutex
+}
+
+func (r *requestLocker) Locker(key string) *sync.RWMutex {
+	r.lock.Lock()
+	defer r.lock.Unlock()
+
+	l, ok := r.locks[key]
+	if !ok {
+		l = &sync.RWMutex{}
+		r.locks[key] = l
+	}
+
+	return l
+}
+
+func newRequestLocker() requestLocker {
+	return requestLocker{
+		locks: make(map[string]*sync.RWMutex),
+		lock:  sync.RWMutex{},
+	}
 }
