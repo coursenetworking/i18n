@@ -157,10 +157,10 @@ var host = flag.String("host", ":8080", "Ex: localhost:8080")
 var dbfile = flag.String("dbfile", "", "the file to store translation data")
 var basePath = flag.String("basepath", ".", "the base runtime path")
 
+var requestLocker sync.Mutex
+
 func main() {
 	flag.Parse()
-
-	reqLocker := newRequestLocker()
 
 	os.Chdir(*basePath)
 
@@ -237,10 +237,10 @@ func main() {
 		var err error
 		section := ctx.Param("section")
 		toLang := ctx.Param("to_lang")
+		isAdmin := ctx.Param("is_admin") == "1"
 
-		locker := reqLocker.Locker(ctx.Request.URL.EscapedPath())
-		locker.Lock()
-		defer locker.Unlock()
+		requestLocker.Lock()
+		defer requestLocker.Unlock()
 
 		sec := new(Section)
 		err = ctx.BindJSON(sec)
@@ -258,6 +258,16 @@ func main() {
 		err = dbh.Section(section, trans)
 		isNewSection := err != nil
 
+		outdateErr := "Fail to save your change, because your page is expired, the language database has been updated, please fresh the page."
+
+		if !isAdmin && isNewSection {
+			ctx.JSON(200, gin.H{
+				"result": false,
+				"err":    outdateErr,
+			})
+			return
+		}
+
 		//new section name
 		if sec.RenameTo != "" {
 			trans.Section = sec.RenameTo
@@ -266,7 +276,15 @@ func main() {
 		//check any removed item
 		for o, _ := range trans.Items {
 			if _, ok := sec.Items[o]; !ok {
-				delete(trans.Items, o)
+				if isAdmin {
+					delete(trans.Items, o)
+				} else {
+					ctx.JSON(200, gin.H{
+						"result": false,
+						"err":    outdateErr,
+					})
+					return
+				}
 			}
 		}
 
@@ -290,11 +308,19 @@ func main() {
 			}
 
 			if newOriginalItem {
-				if _, ok := trans.Items[o]; !ok {
-					trans.Items[o] = make(TranslationItem)
-				}
+				if isAdmin {
+					if _, ok := trans.Items[o]; !ok {
+						trans.Items[o] = make(TranslationItem)
+					}
 
-				trans.Items[o][toLang] = it.TranslateTo
+					trans.Items[o][toLang] = it.TranslateTo
+				} else {
+					ctx.JSON(200, gin.H{
+						"result": false,
+						"err":    outdateErr,
+					})
+					return
+				}
 			}
 		}
 
@@ -306,7 +332,7 @@ func main() {
 		}
 
 		if err != nil {
-			ctx.JSON(500, gin.H{
+			ctx.JSON(200, gin.H{
 				"result": false,
 				"err":    err.Error(),
 			})
@@ -377,29 +403,4 @@ func assetContentType(name string) string {
 	}
 
 	return result
-}
-
-type requestLocker struct {
-	locks map[string]*sync.RWMutex
-	lock  sync.RWMutex
-}
-
-func (r *requestLocker) Locker(key string) *sync.RWMutex {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
-	l, ok := r.locks[key]
-	if !ok {
-		l = &sync.RWMutex{}
-		r.locks[key] = l
-	}
-
-	return l
-}
-
-func newRequestLocker() requestLocker {
-	return requestLocker{
-		locks: make(map[string]*sync.RWMutex),
-		lock:  sync.RWMutex{},
-	}
 }
