@@ -179,17 +179,21 @@ i18n.controller("sectionCtrl", ["$scope", "$http", "API", function($scope, $http
             }
         }
         angular.extend($scope.section.items, newItems);
+        var requestUrl = API.TRANSLATETION + $scope.lang + '/' + $scope.section.section;
+        if($scope.supermode) {
+            requestUrl += "?is_admin=1";
+        }
         $http({
             method: "POST",
-            url: API.TRANSLATETION + $scope.lang + '/' + $scope.section.section + '?is_admin=1',
+            url: requestUrl,
             data: $scope.section
         }).then(function(res) {
             if(!res.data.result) {
-                window.alert(res.data.err);
+                alert(res.data.err);
             }
             $scope.section.is_new = false;
         }, function (res) {
-            window.alert(res.status + ' : ' + res.statusText);
+            alert(res.status + ':' + res.statusText);
         });
         return false;
     };

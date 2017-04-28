@@ -124,7 +124,7 @@ i18n.directive("langselect", function() {
 i18n.directive("langsectioncreate", function() {
     return {
         restrict: "AE",
-        templateUrl: "static/static/tpl/lang-section-create-7a4d8aa21a.html",
+        templateUrl: "static/tpl/lang-section-create-7a4d8aa21a.html",
         replace: true
     }
 });
@@ -132,7 +132,7 @@ i18n.directive("langsectioncreate", function() {
 i18n.directive("langsectionedit", function() {
     return {
         restrict: "AE",
-        templateUrl: "static/static/tpl/lang-section-edit-cc44a7aef9.html",
+        templateUrl: "static/tpl/lang-section-edit-cc44a7aef9.html",
         replace: true
     }
 });
@@ -140,7 +140,7 @@ i18n.directive("langsectionedit", function() {
 i18n.directive("langsectionview", function() {
     return {
         restrict: "AE",
-        templateUrl: "static/static/tpl/lang-section-view-c8db2539db.html",
+        templateUrl: "static/tpl/lang-section-view-c8db2539db.html",
         replace: true
     }
 });
@@ -179,17 +179,21 @@ i18n.controller("sectionCtrl", ["$scope", "$http", "API", function($scope, $http
             }
         }
         angular.extend($scope.section.items, newItems);
+        var requestUrl = API.TRANSLATETION + $scope.lang + '/' + $scope.section.section;
+        if($scope.supermode) {
+            requestUrl += "?is_admin=1";
+        }
         $http({
             method: "POST",
-            url: API.TRANSLATETION + $scope.lang + '/' + $scope.section.section + '?is_admin=1',
+            url: requestUrl,
             data: $scope.section
         }).then(function(res) {
             if(!res.data.result) {
-                window.alert(res.data.err);
+                alert(res.data.err);
             }
             $scope.section.is_new = false;
         }, function (res) {
-            window.alert(res.status + ' : ' + res.statusText);
+            alert(res.status + ':' + res.statusText);
         });
         return false;
     };
