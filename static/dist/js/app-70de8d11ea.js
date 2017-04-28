@@ -181,10 +181,15 @@ i18n.controller("sectionCtrl", ["$scope", "$http", "API", function($scope, $http
         angular.extend($scope.section.items, newItems);
         $http({
             method: "POST",
-            url: API.TRANSLATETION + $scope.lang + '/' + $scope.section.section,
+            url: API.TRANSLATETION + $scope.lang + '/' + $scope.section.section + '?is_admin=1',
             data: $scope.section
-        }).then(function() {
+        }).then(function(res) {
+            if(!res.data.result) {
+                window.alert(res.data.err);
+            }
             $scope.section.is_new = false;
+        }, function (res) {
+            window.alert(res.status + ' : ' + res.statusText);
         });
         return false;
     };

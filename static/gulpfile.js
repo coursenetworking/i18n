@@ -10,7 +10,7 @@ gulp.task('rev', ['js', 'css', 'bower_components'], function() {
             dirReplacements: {
                 'css/': 'static/css/',
                 'js/': 'static/js/',
-                'bower_components/': 'static/bower_components/'
+                'bower_components/': 'static/bower_components/',
                 'img/': 'static/img/'
             }
         }))
