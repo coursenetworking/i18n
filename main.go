@@ -91,7 +91,9 @@ func (h *dbfileHandler) Update(name string, trans Translation) error {
 func (h *dbfileHandler) Sync() error {
 	h.dbfile.Sync()
 	h.dbfile.Seek(0, 0)
-	return json.NewEncoder(h.dbfile).Encode(h.collection)
+	encoder := json.NewEncoder(h.dbfile)
+	encoder.SetIndent("", " ")
+	return encoder.Encode(h.collection)
 }
 
 func (h *dbfileHandler) Close() {
