@@ -115,7 +115,9 @@ func main() {
 	}
 
 	defer newdbFile.Close()
-	err = json.NewEncoder(newdbFile).Encode(newdb)
+	encoder := json.NewEncoder(newdbFile)
+	encoder.SetIndent("", "  ")
+	err = encoder.Encode(newdb)
 	if err != nil {
 		panic(err)
 	}
