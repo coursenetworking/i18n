@@ -71,7 +71,7 @@ func (h *dbfileHandler) Append(trans Translation) error {
 	}
 
 	h.collection = append(h.collection, trans)
-	return h.Sync()
+	return h.sync()
 }
 
 func (h *dbfileHandler) Update(name string, trans Translation) error {
@@ -81,19 +81,27 @@ func (h *dbfileHandler) Update(name string, trans Translation) error {
 	for k, i := range h.collection {
 		if i.Section == name {
 			h.collection[k] = trans
-			return h.Sync()
+			return h.sync()
 		}
 	}
 
 	return errors.New("section does not exist")
 }
 
-func (h *dbfileHandler) Sync() error {
-	h.dbfile.Sync()
+func (h *dbfileHandler) sync() error {
 	h.dbfile.Seek(0, 0)
-	encoder := json.NewEncoder(h.dbfile)
-	encoder.SetIndent("", " ")
-	return encoder.Encode(h.collection)
+	b, err := json.MarshalIndent(h.collection, "", " ")
+	if err != nil {
+		return err
+	}
+
+	err = h.dbfile.Truncate(0)
+	if err != nil {
+		return err
+	}
+
+	_, err = h.dbfile.Write(b)
+	return err
 }
 
 func (h *dbfileHandler) Close() {
@@ -176,7 +184,6 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	defer dbf.Close()
 
 	dbh := newDbfileHandler(dbf)
 	defer dbh.Close()
