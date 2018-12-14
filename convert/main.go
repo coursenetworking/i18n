@@ -49,7 +49,7 @@ func inArray(item string, arr []string) bool {
 func main() {
 
 	var err error
-	tempFile, err := os.OpenFile("t.json", os.O_RDONLY, 0400)
+	tempFile, err := os.OpenFile("source_text.json", os.O_RDONLY, 0400)
 	if err != nil {
 		panic(err)
 	}
